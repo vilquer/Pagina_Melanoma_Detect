@@ -160,13 +160,32 @@ import asyncio
 import gdown
 import os
 
-# ID do arquivo no Google Drive
+
+# ID do arquivo no Google Drive e caminho de saída
 file_id = "1C34x7CUYGt-OhjHJH4ldbq-DqZ_pyB6g"
 output_path = "best_model.pth"
 
+# Função para baixar com barra de progresso
+def download_with_progress(file_id, output_path):
+    # Link direto para o arquivo
+    download_url = f"https://drive.google.com/uc?id={file_id}"
+
+    # Exibe a barra de progresso e mensagem de carregamento
+    progress_bar = st.progress(0)
+    with st.spinner('Baixando modelo, aguarde...'):
+
+        # Baixa o arquivo em pedaços para atualizar a barra de progresso
+        def progress_callback(current, total):
+            progress = int((current / total) * 100)
+            progress_bar.progress(progress)
+
+        gdown.download(download_url, output_path, quiet=False, callback=progress_callback)
+        progress_bar.empty()
+
+
 # Verifica se o modelo já foi baixado
 if not os.path.exists(output_path):
-    gdown.download(f"https://drive.google.com/uc?id={file_id}", output_path, quiet=False)
+    download_with_progress(file_id, output_path)
 
 
 # Configura o dispositivo como CPU
